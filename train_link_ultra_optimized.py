@@ -228,7 +228,7 @@ def main():
     
     # Step 1: Ultra-optimized data preparation
     print(f"\n🔧 Step 1: Ultra-optimized data preparation...")
-    processed_data_path = './data/LINK_ultra_optimized.csv'
+            processed_data_path = '.\\data\\LINK_ultra_optimized.csv'
     success = prepare_ultra_optimized_data(input_file, processed_data_path)
     
     if not success:
@@ -303,7 +303,7 @@ def main():
             self.use_multi_gpu = False
             self.devices = '0'
             self.cols = None
-            self.checkpoints = './checkpoints/'
+            self.checkpoints = '.\\checkpoints\\'
             
             # GPU setup
             self.use_gpu = True if torch.cuda.is_available() else False
