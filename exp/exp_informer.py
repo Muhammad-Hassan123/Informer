@@ -70,7 +70,8 @@ class Exp_Informer(Exp_Basic):
             'Solar':Dataset_Custom,
             'custom':Dataset_Custom,
         }
-        Data = data_dict[self.args.data]
+        # Use Dataset_Custom for any data not in the predefined list
+        Data = data_dict.get(self.args.data, Dataset_Custom)
         timeenc = 0 if args.embed!='timeF' else 1
 
         if flag == 'test':
