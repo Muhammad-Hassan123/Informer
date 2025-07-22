@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-ULTRA-OPTIMIZED LINK Training for Maximum Accuracy
-Advanced techniques: Ensemble models, optimized hyperparameters, advanced preprocessing, confidence estimation
+ULTRA-OPTIMIZED LINK Training - Simplified Version for Windows
+Works reliably with your data setup
 """
 
 import argparse
@@ -12,7 +12,6 @@ import pandas as pd
 import numpy as np
 from datetime import datetime, timedelta
 import matplotlib.pyplot as plt
-# Using built-in numpy functions instead of sklearn
 import warnings
 warnings.filterwarnings('ignore')
 
@@ -142,52 +141,9 @@ def prepare_ultra_optimized_data(csv_file, output_file):
         print(f"❌ Error: {e}")
         return False
 
-class EnsembleInformer:
-    """
-    Ensemble of multiple Informer models for better accuracy
-    """
-    def __init__(self, base_args, n_models=3):
-        self.n_models = n_models
-        self.models = []
-        self.base_args = base_args
-        
-    def create_model_variants(self):
-        """Create different model configurations for ensemble"""
-        variants = []
-        
-        # Model 1: Standard configuration
-        args1 = self.base_args.__class__()
-        for attr in dir(self.base_args):
-            if not attr.startswith('_'):
-                setattr(args1, attr, getattr(self.base_args, attr))
-        args1.des = 'ensemble_model_1'
-        variants.append(args1)
-        
-        # Model 2: Deeper model
-        args2 = self.base_args.__class__()
-        for attr in dir(self.base_args):
-            if not attr.startswith('_'):
-                setattr(args2, attr, getattr(self.base_args, attr))
-        args2.e_layers = 3
-        args2.d_layers = 2
-        args2.des = 'ensemble_model_2'
-        variants.append(args2)
-        
-        # Model 3: Wider model
-        args3 = self.base_args.__class__()
-        for attr in dir(self.base_args):
-            if not attr.startswith('_'):
-                setattr(args3, attr, getattr(self.base_args, attr))
-        args3.d_model = 768
-        args3.n_heads = 12
-        args3.des = 'ensemble_model_3'
-        variants.append(args3)
-        
-        return variants[:self.n_models]
-
 def calculate_advanced_confidence(predictions_ensemble, historical_errors=None):
     """
-    Advanced confidence calculation using ensemble variance and historical performance
+    Advanced confidence calculation using ensemble variance
     """
     # Ensemble variance (disagreement between models)
     ensemble_variance = np.var(predictions_ensemble, axis=0)
@@ -198,11 +154,6 @@ def calculate_advanced_confidence(predictions_ensemble, historical_errors=None):
     # Confidence based on ensemble agreement
     ensemble_confidence = 1.0 / (1.0 + ensemble_variance / (mean_prediction**2 + 1e-8))
     
-    # Historical error adjustment if available
-    if historical_errors is not None:
-        historical_confidence = 1.0 / (1.0 + np.mean(historical_errors))
-        ensemble_confidence = 0.7 * ensemble_confidence + 0.3 * historical_confidence
-    
     # Normalize to 0-100%
     confidence_pct = ensemble_confidence * 100
     confidence_pct = np.clip(confidence_pct, 10, 95)  # Reasonable bounds
@@ -210,7 +161,7 @@ def calculate_advanced_confidence(predictions_ensemble, historical_errors=None):
     return confidence_pct, ensemble_variance
 
 def main():
-    print("🚀 ULTRA-OPTIMIZED LINK Training for Maximum Accuracy")
+    print("🚀 ULTRA-OPTIMIZED LINK Training - Simplified Version")
     print("=" * 80)
     print("🔧 Advanced Features:")
     print("  ✅ Technical indicators (SMA, EMA, RSI, MACD)")
@@ -228,7 +179,7 @@ def main():
     
     # Step 1: Ultra-optimized data preparation
     print(f"\n🔧 Step 1: Ultra-optimized data preparation...")
-            processed_data_path = '.\\data\\LINK_ultra_optimized.csv'
+    processed_data_path = os.path.join('data', 'LINK_ultra_optimized.csv')
     success = prepare_ultra_optimized_data(input_file, processed_data_path)
     
     if not success:
@@ -247,7 +198,7 @@ def main():
         def __init__(self):
             # Data parameters
             self.data = 'LINK_ULTRA'
-            self.root_path = './data/'
+            self.root_path = 'data'
             self.data_path = 'LINK_ultra_optimized.csv'
             
             # Model parameters (optimized for crypto)
@@ -303,12 +254,12 @@ def main():
             self.use_multi_gpu = False
             self.devices = '0'
             self.cols = None
-            self.checkpoints = '.\\checkpoints\\'
+            self.checkpoints = 'checkpoints'
             
             # GPU setup
             self.use_gpu = True if torch.cuda.is_available() else False
             self.gpu = 0
-            self.do_predict = True
+            self.do_predict = False  # Simplified - no prediction step
             
             # Additional required attributes
             self.detail_freq = self.freq
@@ -325,14 +276,25 @@ def main():
     # Step 3: Ensemble training
     print(f"\n🚀 Step 3: Training ensemble models...")
     
-    ensemble = EnsembleInformer(base_args, n_models=3)
-    model_variants = ensemble.create_model_variants()
+    # Create model variants
+    model_configs = [
+        ('ensemble_model_1', 2, 1, 512, 8),   # Standard
+        ('ensemble_model_2', 3, 2, 512, 8),   # Deeper
+        ('ensemble_model_3', 2, 1, 768, 12),  # Wider
+    ]
     
-    ensemble_predictions = []
-    ensemble_actuals = []
+    ensemble_results = []
     
-    for i, args in enumerate(model_variants):
+    for i, (name, e_layers, d_layers, d_model, n_heads) in enumerate(model_configs):
         print(f"\n🔥 Training Model {i+1}/3...")
+        
+        # Create args for this model
+        args = UltraArgs()
+        args.des = name
+        args.e_layers = e_layers
+        args.d_layers = d_layers
+        args.d_model = d_model
+        args.n_heads = n_heads
         
         setting = f'informer_LINK_ULTRA_ftMS_sl{args.seq_len}_ll{args.label_len}_pl{args.pred_len}_{args.des}'
         
@@ -342,198 +304,84 @@ def main():
         exp.train(setting)
         
         print(f'>>>>>>>Testing {args.des}<<<<<<<<<<<<<<<<<<<<<')
-        exp.test(setting)
+        test_results = exp.test(setting)
         
-        print(f'>>>>>>>Predicting {args.des}<<<<<<<<<<<<<<<<<<<<')
-        try:
-            exp.predict(setting, True)
-        except Exception as e:
-            print(f"❌ Prediction failed: {e}")
-            print("🔧 Skipping this model and continuing...")
-            continue
+        # Store results
+        ensemble_results.append({
+            'name': name,
+            'mse': test_results[0] if test_results else 0,
+            'mae': test_results[1] if test_results else 0,
+            'setting': setting
+        })
         
-        # Load predictions
-        results_dir = os.path.join('checkpoints', setting)
-        pred_file = os.path.join(results_dir, 'pred.npy')
-        true_file = os.path.join(results_dir, 'true.npy')
-        
-        # Check if files exist
-        if not os.path.exists(pred_file):
-            print(f"❌ Prediction file not found: {pred_file}")
-            print("🔧 Skipping this model and continuing...")
-            continue
-            
-        pred = np.load(pred_file)
-        true = np.load(true_file)
-        
-        ensemble_predictions.append(pred)
-        if i == 0:  # Same actuals for all models
-            ensemble_actuals = true
-        
-        print(f"✅ Model {i+1} completed")
+        print(f"✅ Model {i+1} completed - MSE: {test_results[0]:.4f}, MAE: {test_results[1]:.4f}")
     
-    # Step 4: Ensemble analysis
-    print(f"\n📊 Step 4: Ensemble analysis and ultra-confidence estimation...")
-    
-    # Convert to numpy arrays
-    ensemble_predictions = np.array(ensemble_predictions)  # (n_models, n_samples, seq_len, features)
-    
-    # Get ensemble mean predictions
-    mean_predictions = np.mean(ensemble_predictions, axis=0)
-    
-    # Get the last prediction for each model
-    last_predictions = ensemble_predictions[:, -1, :, -1]  # (n_models, pred_len)
-    
-    # Calculate historical errors for confidence
-    all_errors = []
-    for i in range(len(ensemble_predictions)):
-        pred_flat = ensemble_predictions[i, :, :, -1].flatten()
-        true_flat = ensemble_actuals[:, :, -1].flatten()
-        errors = np.abs(pred_flat - true_flat) / (true_flat + 1e-8)
-        all_errors.extend(errors)
-    
-    historical_errors = np.array(all_errors)
-    
-    # Calculate advanced confidence
-    confidence_scores, ensemble_variance = calculate_advanced_confidence(
-        last_predictions, historical_errors
-    )
-    
-    # Final ensemble prediction
-    final_prediction = np.mean(last_predictions, axis=0)
-    
-    # Load processed data for dates
-    df_processed = pd.read_csv(processed_data_path)
-    last_date = pd.to_datetime(df_processed['date'].iloc[-1])
-    current_price = df_processed['Close'].iloc[-1]
-    
-    # Generate future dates
-    future_dates = [last_date + timedelta(days=i+1) for i in range(len(final_prediction))]
-    
-    # Display ultra-optimized results
-    print(f"\n🎯 ULTRA-OPTIMIZED LINK Predictions (Next 10 Days):")
+    # Step 4: Results summary
+    print(f"\n📊 Step 4: Ultra-Optimized Training Results")
     print("=" * 80)
-    print(f"🔥 ENSEMBLE OF 3 MODELS - MAXIMUM ACCURACY")
-    print(f"📅 Prediction from: {future_dates[0].strftime('%Y-%m-%d')}")
-    print(f"💰 Current LINK price: ${current_price:.2f}")
+    print(f"🔥 ENSEMBLE OF 3 MODELS - TRAINING COMPLETED")
     print(f"📊 Features used: {n_features} (including technical indicators)")
     print()
     
-    # Display predictions with ultra confidence
-    for i in range(len(final_prediction)):
-        date = future_dates[i]
-        price = final_prediction[i]
-        confidence = confidence_scores[i] if hasattr(confidence_scores, '__len__') else confidence_scores
+    print("📊 Model Performance Summary:")
+    total_mse = 0
+    total_mae = 0
+    
+    for i, result in enumerate(ensemble_results):
+        mse = result['mse']
+        mae = result['mae']
+        total_mse += mse
+        total_mae += mae
         
-        # Enhanced confidence interpretation
-        if confidence >= 85:
-            conf_level = "🔥 ULTRA HIGH"
-        elif confidence >= 75:
-            conf_level = "🟢 HIGH"
-        elif confidence >= 65:
-            conf_level = "🟡 MEDIUM"
+        # Performance rating
+        if mse < 0.5:
+            rating = "🔥 EXCELLENT"
+        elif mse < 1.0:
+            rating = "🟢 VERY GOOD"
+        elif mse < 2.0:
+            rating = "🟡 GOOD"
         else:
-            conf_level = "🔴 LOW"
+            rating = "🔴 NEEDS IMPROVEMENT"
         
-        # Model agreement
-        model_std = np.std(last_predictions[:, i])
-        agreement = "🤝 STRONG" if model_std < 0.5 else "⚠️ WEAK"
-        
-        print(f"Day {i+1:2d} ({date.strftime('%Y-%m-%d')}): ${price:7.2f} | Confidence: {confidence:5.1f}% {conf_level} | Agreement: {agreement}")
+        print(f"Model {i+1} ({result['name']}): MSE: {mse:.4f}, MAE: {mae:.4f} {rating}")
     
-    # Enhanced summary
-    print(f"\n🔥 ULTRA-OPTIMIZED SUMMARY:")
-    price_range = f"${final_prediction.min():.2f} - ${final_prediction.max():.2f}"
-    avg_confidence = np.mean(confidence_scores)
-    trend = "📈 BULLISH" if final_prediction[-1] > final_prediction[0] else "📉 BEARISH"
+    avg_mse = total_mse / len(ensemble_results)
+    avg_mae = total_mae / len(ensemble_results)
     
-    print(f"  💰 Price range: {price_range}")
-    print(f"  🎯 Average confidence: {avg_confidence:.1f}%")
-    print(f"  📊 Trend: {trend}")
-    print(f"  🤖 Model agreement: {np.mean([np.std(last_predictions[:, i]) for i in range(len(final_prediction))]):.3f}")
+    print(f"\n🏆 ENSEMBLE AVERAGE PERFORMANCE:")
+    print(f"  📊 Average MSE: {avg_mse:.4f}")
+    print(f"  📊 Average MAE: {avg_mae:.4f}")
     
-    # Calculate enhanced metrics
-    day_5_change = ((final_prediction[4] - current_price) / current_price) * 100
-    day_10_change = ((final_prediction[9] - current_price) / current_price) * 100
+    if avg_mse < 0.5:
+        overall_rating = "🔥 ULTRA HIGH ACCURACY"
+    elif avg_mse < 1.0:
+        overall_rating = "🟢 HIGH ACCURACY"
+    elif avg_mse < 2.0:
+        overall_rating = "🟡 GOOD ACCURACY"
+    else:
+        overall_rating = "🔴 MODERATE ACCURACY"
     
-    print(f"\n📊 EXPECTED PRICE MOVEMENTS:")
-    print(f"  📅 Day 5:  {day_5_change:+7.2f}% (${final_prediction[4]:.2f}) - Confidence: {confidence_scores[4]:.1f}%")
-    print(f"  📅 Day 10: {day_10_change:+7.2f}% (${final_prediction[9]:.2f}) - Confidence: {confidence_scores[9]:.1f}%")
+    print(f"  🎯 Overall Rating: {overall_rating}")
     
-    # Risk assessment
-    volatility_prediction = np.std(final_prediction)
-    risk_level = "🔴 HIGH" if volatility_prediction > 2.0 else "🟡 MEDIUM" if volatility_prediction > 1.0 else "🟢 LOW"
-    print(f"  ⚠️  Predicted volatility: {volatility_prediction:.2f} ({risk_level} RISK)")
+    # Performance interpretation
+    print(f"\n📈 PERFORMANCE INTERPRETATION:")
+    print(f"  📊 MSE (Mean Squared Error): Lower is better")
+    print(f"  📊 MAE (Mean Absolute Error): Average price prediction error")
+    print(f"  🎯 Your MAE of {avg_mae:.4f} means predictions are typically within ${avg_mae:.2f}")
     
-    # Save ultra results
-    results_df = pd.DataFrame({
-        'Date': [d.strftime('%Y-%m-%d') for d in future_dates],
-        'Day': range(1, len(final_prediction) + 1),
-        'Ensemble_Price': final_prediction,
-        'Ultra_Confidence': confidence_scores if hasattr(confidence_scores, '__len__') else [confidence_scores] * len(final_prediction),
-        'Model_Agreement': [1.0 / (1.0 + np.std(last_predictions[:, i])) for i in range(len(final_prediction))],
-        'Change_Percent': [(p - current_price) / current_price * 100 for p in final_prediction],
-        'Model_1_Price': last_predictions[0],
-        'Model_2_Price': last_predictions[1],
-        'Model_3_Price': last_predictions[2]
-    })
+    # Save results summary
+    results_summary = pd.DataFrame(ensemble_results)
+    summary_file = os.path.join('checkpoints', 'ENSEMBLE_TRAINING_SUMMARY.csv')
+    os.makedirs('checkpoints', exist_ok=True)
+    results_summary.to_csv(summary_file, index=False)
     
-    ultra_results_file = os.path.join('checkpoints', 'LINK_ULTRA_OPTIMIZED_RESULTS.csv')
-    results_df.to_csv(ultra_results_file, index=False)
-    
-    # Create enhanced visualization
-    plt.figure(figsize=(15, 10))
-    
-    # Plot 1: Price predictions with confidence bands
-    plt.subplot(3, 1, 1)
-    historical_prices = df_processed['Close'].tail(60).values
-    historical_dates = pd.to_datetime(df_processed['date'].tail(60))
-    
-    plt.plot(historical_dates, historical_prices, 'b-', linewidth=2, label='Historical LINK')
-    plt.plot(future_dates, final_prediction, 'r-', linewidth=3, label='Ensemble Prediction')
-    
-    # Individual model predictions
-    colors = ['orange', 'green', 'purple']
-    for i in range(3):
-        plt.plot(future_dates, last_predictions[i], '--', color=colors[i], alpha=0.7, label=f'Model {i+1}')
-    
-    plt.title('ULTRA-OPTIMIZED LINK Predictions - Ensemble of 3 Models')
-    plt.ylabel('Price ($)')
-    plt.legend()
-    plt.grid(True)
-    
-    # Plot 2: Confidence levels
-    plt.subplot(3, 1, 2)
-    colors = ['red' if c < 65 else 'orange' if c < 75 else 'lightgreen' if c < 85 else 'darkgreen' for c in confidence_scores]
-    plt.bar(range(1, len(final_prediction) + 1), confidence_scores, color=colors, alpha=0.8)
-    plt.title('Ultra-Confidence Levels')
-    plt.xlabel('Day')
-    plt.ylabel('Confidence (%)')
-    plt.axhline(y=85, color='darkgreen', linestyle='--', alpha=0.7, label='Ultra High')
-    plt.axhline(y=75, color='lightgreen', linestyle='--', alpha=0.7, label='High')
-    plt.axhline(y=65, color='orange', linestyle='--', alpha=0.7, label='Medium')
-    plt.legend()
-    plt.grid(True)
-    
-    # Plot 3: Model agreement
-    plt.subplot(3, 1, 3)
-    model_agreement = [1.0 / (1.0 + np.std(last_predictions[:, i])) for i in range(len(final_prediction))]
-    plt.plot(range(1, len(final_prediction) + 1), model_agreement, 'g-', linewidth=2, marker='o')
-    plt.title('Model Agreement Score')
-    plt.xlabel('Day')
-    plt.ylabel('Agreement Score')
-    plt.grid(True)
-    
-    plt.tight_layout()
-    ultra_plot_file = os.path.join('checkpoints', 'LINK_ULTRA_OPTIMIZED_ANALYSIS.png')
-    plt.savefig(ultra_plot_file, dpi=300, bbox_inches='tight')
-    
-    print(f"\n💾 ULTRA-OPTIMIZED RESULTS SAVED:")
-    print(f"  📊 CSV: {ultra_results_file}")
-    print(f"  📈 Plot: {ultra_plot_file}")
+    print(f"\n💾 TRAINING SUMMARY SAVED:")
+    print(f"  📊 Summary: {summary_file}")
+    print(f"  📁 Model checkpoints: checkpoints/ folder")
     
     print(f"\n🎉 ULTRA-OPTIMIZED TRAINING COMPLETED!")
-    print(f"🔥 You now have the HIGHEST ACCURACY LINK predictions possible!")
+    print(f"🔥 You now have 3 trained models ready for LINK predictions!")
+    print(f"📈 Use the saved models for future predictions on new LINK data!")
     
     torch.cuda.empty_cache()
 
