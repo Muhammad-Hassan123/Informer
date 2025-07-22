@@ -348,9 +348,9 @@ def main():
         exp.predict(setting, True)
         
         # Load predictions
-        results_dir = f'./checkpoints/{setting}/'
-        pred = np.load(f'{results_dir}pred.npy')
-        true = np.load(f'{results_dir}true.npy')
+        results_dir = os.path.join('checkpoints', setting)
+        pred = np.load(os.path.join(results_dir, 'pred.npy'))
+        true = np.load(os.path.join(results_dir, 'true.npy'))
         
         ensemble_predictions.append(pred)
         if i == 0:  # Same actuals for all models
@@ -464,7 +464,7 @@ def main():
         'Model_3_Price': last_predictions[2]
     })
     
-    ultra_results_file = './checkpoints/LINK_ULTRA_OPTIMIZED_RESULTS.csv'
+    ultra_results_file = os.path.join('checkpoints', 'LINK_ULTRA_OPTIMIZED_RESULTS.csv')
     results_df.to_csv(ultra_results_file, index=False)
     
     # Create enhanced visualization
@@ -511,7 +511,7 @@ def main():
     plt.grid(True)
     
     plt.tight_layout()
-    ultra_plot_file = './checkpoints/LINK_ULTRA_OPTIMIZED_ANALYSIS.png'
+    ultra_plot_file = os.path.join('checkpoints', 'LINK_ULTRA_OPTIMIZED_ANALYSIS.png')
     plt.savefig(ultra_plot_file, dpi=300, bbox_inches='tight')
     
     print(f"\n💾 ULTRA-OPTIMIZED RESULTS SAVED:")
