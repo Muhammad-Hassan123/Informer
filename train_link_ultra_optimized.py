@@ -79,8 +79,19 @@ def prepare_ultra_optimized_data(csv_file, output_file):
         # Take first 800 rows
         df_800 = df.head(800).copy()
         
-        # Convert timestamps
-        df_800['date'] = pd.to_datetime(df_800['Open Time'], unit='ms')
+        # Convert timestamps (handle both date strings and milliseconds)
+        try:
+            # Try parsing as date string first (like "2022-10-27")
+            df_800['date'] = pd.to_datetime(df_800['Open Time'])
+            print(f"✅ Detected date string format: {df_800['Open Time'].iloc[0]}")
+        except:
+            try:
+                # Fallback to milliseconds if date string fails
+                df_800['date'] = pd.to_datetime(df_800['Open Time'], unit='ms')
+                print(f"✅ Detected milliseconds format: {df_800['Open Time'].iloc[0]}")
+            except:
+                print(f"❌ Could not parse timestamp format: {df_800['Open Time'].iloc[0]}")
+                return False
         
         # Basic OHLCV columns
         base_columns = ['date', 'Open', 'High', 'Low', 'Close', 'Volume']
