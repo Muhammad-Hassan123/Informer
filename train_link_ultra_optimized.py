@@ -228,7 +228,7 @@ def main():
     
     # Step 1: Ultra-optimized data preparation
     print(f"\n🔧 Step 1: Ultra-optimized data preparation...")
-    processed_data_path = 'data/LINK_ultra_optimized.csv'
+    processed_data_path = os.path.join('data', 'LINK_ultra_optimized.csv')
     success = prepare_ultra_optimized_data(input_file, processed_data_path)
     
     if not success:
@@ -247,7 +247,7 @@ def main():
         def __init__(self):
             # Data parameters
             self.data = 'LINK_ULTRA'
-            self.root_path = './data/'
+            self.root_path = 'data'
             self.data_path = 'LINK_ultra_optimized.csv'
             
             # Model parameters (optimized for crypto)
@@ -312,7 +312,7 @@ def main():
             
             # Additional required attributes
             self.detail_freq = self.freq
-
+    
     base_args = UltraArgs()
     
     print(f"✅ Ultra-optimized configuration:")
@@ -345,12 +345,26 @@ def main():
         exp.test(setting)
         
         print(f'>>>>>>>Predicting {args.des}<<<<<<<<<<<<<<<<<<<<')
-        exp.predict(setting, True)
+        try:
+            exp.predict(setting, True)
+        except Exception as e:
+            print(f"❌ Prediction failed: {e}")
+            print("🔧 Skipping this model and continuing...")
+            continue
         
         # Load predictions
         results_dir = os.path.join('checkpoints', setting)
-        pred = np.load(os.path.join(results_dir, 'pred.npy'))
-        true = np.load(os.path.join(results_dir, 'true.npy'))
+        pred_file = os.path.join(results_dir, 'pred.npy')
+        true_file = os.path.join(results_dir, 'true.npy')
+        
+        # Check if files exist
+        if not os.path.exists(pred_file):
+            print(f"❌ Prediction file not found: {pred_file}")
+            print("🔧 Skipping this model and continuing...")
+            continue
+            
+        pred = np.load(pred_file)
+        true = np.load(true_file)
         
         ensemble_predictions.append(pred)
         if i == 0:  # Same actuals for all models
@@ -360,6 +374,13 @@ def main():
     
     # Step 4: Ensemble analysis
     print(f"\n📊 Step 4: Ensemble analysis and ultra-confidence estimation...")
+    
+    # Check if we have any successful predictions
+    if len(ensemble_predictions) == 0:
+        print("❌ No models completed successfully. Cannot perform ensemble analysis.")
+        return
+    
+    print(f"✅ Successfully trained {len(ensemble_predictions)} out of 3 models")
     
     # Convert to numpy arrays
     ensemble_predictions = np.array(ensemble_predictions)  # (n_models, n_samples, seq_len, features)
