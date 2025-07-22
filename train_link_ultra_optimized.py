@@ -309,7 +309,10 @@ def main():
             self.use_gpu = True if torch.cuda.is_available() else False
             self.gpu = 0
             self.do_predict = True
-    
+            
+            # Additional required attributes
+            self.detail_freq = self.freq
+            
     base_args = UltraArgs()
     
     print(f"✅ Ultra-optimized configuration:")
