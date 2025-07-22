@@ -4,6 +4,7 @@ from models.model import Informer, InformerStack
 
 from utils.tools import EarlyStopping, adjust_learning_rate
 from utils.metrics import metric
+from utils.losses import get_loss_function
 
 import numpy as np
 
@@ -108,7 +109,22 @@ class Exp_Informer(Exp_Basic):
         return model_optim
     
     def _select_criterion(self):
-        criterion =  nn.MSELoss()
+        # Support for multiple loss functions including GMADL
+        loss_kwargs = {}
+        
+        # Extract loss-specific parameters from args
+        if hasattr(self.args, 'beta'):
+            loss_kwargs['beta'] = self.args.beta
+        if hasattr(self.args, 'beta_start'):
+            loss_kwargs['beta_start'] = self.args.beta_start
+        if hasattr(self.args, 'beta_end'):
+            loss_kwargs['beta_end'] = self.args.beta_end
+        if hasattr(self.args, 'weight_decay'):
+            loss_kwargs['weight_decay'] = self.args.weight_decay
+        if hasattr(self.args, 'train_epochs'):
+            loss_kwargs['total_epochs'] = self.args.train_epochs
+            
+        criterion = get_loss_function(self.args.loss, **loss_kwargs)
         return criterion
 
     def vali(self, vali_data, vali_loader, criterion):
@@ -146,6 +162,10 @@ class Exp_Informer(Exp_Basic):
         for epoch in range(self.args.train_epochs):
             iter_count = 0
             train_loss = []
+            
+            # Update adaptive loss function if applicable
+            if hasattr(criterion, 'set_epoch'):
+                criterion.set_epoch(epoch)
             
             self.model.train()
             epoch_time = time.time()
