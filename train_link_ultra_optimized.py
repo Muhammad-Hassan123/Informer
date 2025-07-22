@@ -228,7 +228,7 @@ def main():
     
     # Step 1: Ultra-optimized data preparation
     print(f"\n🔧 Step 1: Ultra-optimized data preparation...")
-            processed_data_path = '.\\data\\LINK_ultra_optimized.csv'
+            processed_data_path = os.path.join('data', 'LINK_ultra_optimized.csv')
     success = prepare_ultra_optimized_data(input_file, processed_data_path)
     
     if not success:
@@ -247,7 +247,7 @@ def main():
         def __init__(self):
             # Data parameters
             self.data = 'LINK_ULTRA'
-            self.root_path = './data/'
+            self.root_path = 'data'
             self.data_path = 'LINK_ultra_optimized.csv'
             
             # Model parameters (optimized for crypto)
@@ -303,7 +303,7 @@ def main():
             self.use_multi_gpu = False
             self.devices = '0'
             self.cols = None
-            self.checkpoints = '.\\checkpoints\\'
+            self.checkpoints = 'checkpoints'
             
             # GPU setup
             self.use_gpu = True if torch.cuda.is_available() else False
@@ -374,6 +374,13 @@ def main():
     
     # Step 4: Ensemble analysis
     print(f"\n📊 Step 4: Ensemble analysis and ultra-confidence estimation...")
+    
+    # Check if we have any successful predictions
+    if len(ensemble_predictions) == 0:
+        print("❌ No models completed successfully. Cannot perform ensemble analysis.")
+        return
+    
+    print(f"✅ Successfully trained {len(ensemble_predictions)} out of 3 models")
     
     # Convert to numpy arrays
     ensemble_predictions = np.array(ensemble_predictions)  # (n_models, n_samples, seq_len, features)
