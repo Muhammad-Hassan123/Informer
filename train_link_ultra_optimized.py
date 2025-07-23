@@ -295,7 +295,7 @@ def main():
             self.distil = True
             self.mix = True
             self.output_attention = False
-            self.inverse = False
+            self.inverse = True
             self.use_amp = True         # Mixed precision for efficiency
             self.num_workers = 0
             self.des = 'ultra_optimized'
