@@ -353,7 +353,7 @@ def main():
             continue
         
         # Load predictions
-        results_dir = os.path.join('checkpoints', setting)
+        results_dir = os.path.join('results', setting)
         pred_file = os.path.join(results_dir, 'pred.npy')
         true_file = os.path.join(results_dir, 'true.npy')
         
