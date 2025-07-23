@@ -71,6 +71,9 @@ class StandardScaler():
         mean = torch.from_numpy(self.mean).type_as(data).to(data.device) if torch.is_tensor(data) else self.mean
         std = torch.from_numpy(self.std).type_as(data).to(data.device) if torch.is_tensor(data) else self.std
         if data.shape[-1] != mean.shape[-1]:
-            mean = mean[-1:]
-            std = std[-1:]
+            # For MS mode (multivariate to univariate), use Close price column (index 4, after date)
+            # Columns: date,Open,High,Low,Close,... -> Close is at index 4, but after removing date it's index 3
+            target_idx = 3  # Close price column index (0:Open, 1:High, 2:Low, 3:Close)
+            mean = mean[target_idx:target_idx+1]
+            std = std[target_idx:target_idx+1]
         return (data * std) + mean

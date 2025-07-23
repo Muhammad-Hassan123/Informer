@@ -17,6 +17,7 @@ import warnings
 warnings.filterwarnings('ignore')
 
 from exp.exp_informer import Exp_Informer
+import pandas as pd
 
 def advanced_data_preprocessing(df):
     """
