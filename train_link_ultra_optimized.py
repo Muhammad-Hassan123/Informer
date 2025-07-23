@@ -17,6 +17,7 @@ import warnings
 warnings.filterwarnings('ignore')
 
 from exp.exp_informer import Exp_Informer
+import pandas as pd
 
 def advanced_data_preprocessing(df):
     """
@@ -295,7 +296,7 @@ def main():
             self.distil = True
             self.mix = True
             self.output_attention = False
-            self.inverse = False
+            self.inverse = True
             self.use_amp = True         # Mixed precision for efficiency
             self.num_workers = 0
             self.des = 'ultra_optimized'
