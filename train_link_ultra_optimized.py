@@ -125,6 +125,14 @@ def prepare_ultra_optimized_data(csv_file, output_file):
         # Apply advanced preprocessing
         df_processed = advanced_data_preprocessing(df_processed)
         
+        # CRITICAL FIX: Move Close price to be the LAST column for correct inverse transformation
+        # This ensures the inverse scaling uses the Close price parameters
+        if 'Close' in df_processed.columns:
+            close_col = df_processed['Close'].copy()
+            df_processed = df_processed.drop('Close', axis=1)
+            df_processed['Close'] = close_col
+            print("✅ Moved Close price to last column for correct scaling")
+        
         # Sort by date
         df_processed = df_processed.sort_values('date').reset_index(drop=True)
         
@@ -296,7 +304,7 @@ def main():
             self.distil = True
             self.mix = True
             self.output_attention = False
-            self.inverse = True
+            self.inverse = False
             self.use_amp = True         # Mixed precision for efficiency
             self.num_workers = 0
             self.des = 'ultra_optimized'
